@@ -25,12 +25,48 @@ def read_pgm(filename, byteorder='>'):
 import glob
 def listImages(path):
     return glob.glob(path+"*.pgm")
+import csv
 
+class UrbachCrater():
+    def __init__(self,row):
+        x,y,r = row[0],row[1],row[2]
+        self.x=float(x)
+        self.y=float(y)
+        self.r=float(r)
+    def __str__(self):
+        return "x: %f,y: %f,r: %f"%(self.x,self.y,self.r)
+
+def getImageId(image):
+    words = image.split("/")
+    imageName = words[len(words)-1]
+    return imageName.split("tile")[1].split(".")[0]
+
+    
+def readGroundTruth(image):
+    folder_gt = "CraterDataset/bandeira2010_gt/"
+    
+    imageId = getImageId(image)
+    imageGt = folder_gt+imageId+"_gt.csv"
+    print (imageGt)
+    craters = []
+    with open(imageGt, 'r') as csvfile:
+        spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
+        for row in spamreader:
+            crater = UrbachCrater(row)
+
+            print (crater)
+            craters.append(crater)
+    # print (craters)
 if __name__ == "__main__":
     from matplotlib import pyplot,figure
     urbachDatasetPath = "CraterDataset/urbach2009_tile_images/"
     # print name of files
     images = listImages(urbachDatasetPath)
+    for image in images:
+        readGroundTruth(image)
+        exit()
+
+
     print (images)
     pyplot.figure()
     image = read_pgm(urbachDatasetPath+"tile1_24.pgm", byteorder='<')
